@@ -17,6 +17,7 @@ export default function HomePage() {
   const [newRoomName, setNewRoomName] = useState('');
   const [joinRoomId, setJoinRoomId] = useState('');
   const [roomError, setRoomError] = useState('');
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
     const savedToken = localStorage.getItem('token');
@@ -275,12 +276,27 @@ export default function HomePage() {
                             </svg>
                             {room.memberCount || 1} members
                           </span>
-                          <span className="flex items-center truncate">
-                            <svg className="w-3.5 h-3.5 mr-1 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                            </svg>
-                            <span className="truncate">{room.id}</span>
-                          </span>
+                          <div 
+                            className="flex items-center truncate bg-gray-50 hover:bg-gray-100 px-2 py-1 rounded-md border border-gray-200 transition-colors cursor-pointer group/copy ml-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigator.clipboard.writeText(room.id);
+                              setCopiedId(room.id);
+                              setTimeout(() => setCopiedId(null), 2000);
+                            }}
+                            title="Copy Room ID"
+                          >
+                            <span className="truncate font-mono mr-2 text-gray-600">{room.id}</span>
+                            {copiedId === room.id ? (
+                              <svg className="w-3.5 h-3.5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                              </svg>
+                            ) : (
+                              <svg className="w-3.5 h-3.5 text-gray-400 group-hover/copy:text-primary-500 transition-colors flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                              </svg>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <div className="ml-4 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">

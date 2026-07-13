@@ -28,6 +28,13 @@ export default function ChatHeader({
   onClearSearch,
 }: ChatHeaderProps) {
   const router = useRouter();
+  const [copiedId, setCopiedId] = React.useState<string | null>(null);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(roomId);
+    setCopiedId(roomId);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   return (
     <>
@@ -40,10 +47,31 @@ export default function ChatHeader({
             </svg>
           </button>
           <div className="flex flex-col min-w-0 mr-4">
-            <h1 className="text-lg font-bold text-gray-900 truncate flex items-center">
-              <span className="truncate">{roomName || roomId}</span>
-              <span className={`ml-2 w-2 h-2 rounded-full ${wsStatus === 'connected' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : wsStatus === 'connecting' ? 'bg-yellow-500' : 'bg-red-500'}`} title={`WebSocket: ${wsStatus}`}></span>
-            </h1>
+            <div className="flex items-center">
+              <h1 className="text-lg font-bold text-gray-900 truncate">
+                {roomName || roomId}
+              </h1>
+              <span className={`ml-2 flex-shrink-0 w-2 h-2 rounded-full ${wsStatus === 'connected' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : wsStatus === 'connecting' ? 'bg-yellow-500' : 'bg-red-500'}`} title={`WebSocket: ${wsStatus}`}></span>
+            </div>
+            <div className="flex items-center mt-0.5 text-xs text-gray-500">
+              <span className="mr-1.5 opacity-70">ID:</span>
+              <div 
+                className="flex items-center bg-gray-50 hover:bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200 transition-colors cursor-pointer group/copy"
+                onClick={handleCopy}
+                title="Copy Room ID"
+              >
+                <span className="font-mono text-[11px] text-gray-600 mr-1.5 truncate max-w-[100px] sm:max-w-none">{roomId}</span>
+                {copiedId === roomId ? (
+                  <svg className="w-3 h-3 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  <svg className="w-3 h-3 text-gray-400 group-hover/copy:text-primary-500 transition-colors flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
