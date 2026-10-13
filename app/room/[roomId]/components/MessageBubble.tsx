@@ -1,6 +1,5 @@
 import React from 'react';
 import { Message } from '../../../../types';
-import { Check, CheckCheck, Trash2, Edit2, Pin, PinOff } from 'lucide-react';
 
 interface MessageBubbleProps {
   message: Message;
@@ -14,76 +13,105 @@ interface MessageBubbleProps {
   receiptStatus: string;
 }
 
-export default function MessageBubble({ message: msg, isOwn, isAdmin, showHeader, onEdit, onDelete, onPin, onUnpin, receiptStatus }: MessageBubbleProps) {
+export default function MessageBubble({
+  message: msg,
+  isOwn,
+  isAdmin,
+  showHeader,
+  onEdit,
+  onDelete,
+  onPin,
+  onUnpin,
+  receiptStatus,
+}: MessageBubbleProps) {
   const canEdit = isOwn && !msg.isDeleted;
   const canDelete = (isOwn || isAdmin) && !msg.isDeleted;
   const canPin = isAdmin && !msg.isDeleted;
   const showActions = canEdit || canDelete || canPin;
 
   return (
-    <div className={`flex flex-col ${isOwn ? 'items-end' : 'items-start'} mb-1`}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: isOwn ? 'flex-end' : 'flex-start',
+        marginBottom: '0.5rem',
+      }}
+    >
       {showHeader && (
-        <span className="text-[11px] font-semibold text-zinc-500 mb-1 ml-1 mr-1 uppercase tracking-wider flex items-center gap-1.5">
-          {msg.isPinned && <Pin className="w-3 h-3 text-teal-500 fill-teal-500/20" />}
-          {isOwn ? 'You' : msg.senderUsername}
-        </span>
+        <div style={{ fontSize: '0.75rem', color: '#666', marginBottom: '0.2rem' }}>
+          {msg.isPinned && '📌 '}
+          <strong>{isOwn ? 'You' : msg.senderUsername}</strong>
+        </div>
       )}
       {!showHeader && msg.isPinned && (
-         <span className="text-[10px] font-medium text-teal-500 mb-0.5 flex items-center gap-1 ml-1 mr-1">
-           <Pin className="w-2.5 h-2.5 fill-teal-500/20" /> Pinned
-         </span>
+        <div style={{ fontSize: '0.7rem', color: '#666', marginBottom: '0.1rem' }}>📌 Pinned</div>
       )}
-      
-      <div className="group relative max-w-[85%] sm:max-w-[75%]">
+
+      <div
+        style={{
+          maxWidth: '75%',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+          padding: '0.5rem 0.75rem',
+          backgroundColor: msg.isDeleted ? '#f5f5f5' : isOwn ? '#e8f4fd' : '#ffffff',
+        }}
+      >
+        {msg.isDeleted ? (
+          <em style={{ color: '#888' }}>This message was deleted</em>
+        ) : (
+          <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{msg.content}</div>
+        )}
+
         <div
-          className={`px-4 py-2.5 rounded-2xl shadow-sm transition-all ${
-            msg.isDeleted
-              ? 'bg-zinc-900 border border-zinc-800 text-zinc-500 italic rounded-bl-sm'
-              : isOwn
-                ? msg.isPinned ? 'bg-teal-600 text-zinc-50 rounded-br-sm border border-teal-400' : 'bg-teal-600 text-zinc-50 rounded-br-sm'
-                : msg.isPinned ? 'bg-zinc-800 border border-teal-500/50 text-zinc-50 rounded-bl-sm' : 'bg-zinc-800 border border-zinc-700 text-zinc-50 rounded-bl-sm'
-          }`}
+          style={{
+            fontSize: '0.75rem',
+            color: '#777',
+            marginTop: '0.35rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            justifyContent: isOwn ? 'flex-end' : 'flex-start',
+            flexWrap: 'wrap',
+          }}
         >
-          {msg.isDeleted ? (
-            'This message was deleted'
-          ) : (
-            <div className="break-words leading-relaxed text-[15px] whitespace-pre-wrap">{msg.content}</div>
-          )}
-        </div>
+          <span>
+            {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </span>
 
-        {/* Message Meta (Time, Edit, Delete, Status) */}
-        <div className={`flex items-center mt-1.5 space-x-2 text-[11px] font-medium text-zinc-500 ${isOwn ? 'justify-end mr-1' : 'ml-1'}`}>
-          <span>{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+          {msg.isEdited && !msg.isDeleted && <span>(edited)</span>}
 
-          {msg.isEdited && !msg.isDeleted && <span className="italic text-zinc-600">(edited)</span>}
+          {isOwn && !msg.isDeleted && <span>✓ {receiptStatus}</span>}
 
           {showActions && (
-            <div className={`hidden group-hover:flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity bg-zinc-900 p-1 rounded-md border border-zinc-800 shadow-sm absolute top-1/2 -translate-y-1/2 ${isOwn ? 'right-full mr-2' : 'left-full ml-2'} z-10 before:absolute before:inset-y-0 ${isOwn ? 'before:-right-2 before:w-2' : 'before:-left-2 before:w-2'} before:bg-transparent`}>
+            <span style={{ display: 'inline-flex', gap: '0.35rem', marginLeft: '0.25rem' }}>
               {canPin && (
-                <button onClick={() => msg.isPinned ? onUnpin(msg.id) : onPin(msg.id)} className="hover:text-teal-400 text-zinc-400 transition-colors cursor-pointer p-1.5 rounded hover:bg-zinc-800" title={msg.isPinned ? "Unpin" : "Pin"}>
-                  {msg.isPinned ? <PinOff className="w-3.5 h-3.5" /> : <Pin className="w-3.5 h-3.5" />}
+                <button
+                  type="button"
+                  onClick={() => (msg.isPinned ? onUnpin(msg.id) : onPin(msg.id))}
+                  style={{ fontSize: '0.7rem', cursor: 'pointer', padding: '0.1rem 0.3rem' }}
+                >
+                  {msg.isPinned ? 'Unpin' : 'Pin'}
                 </button>
               )}
-              {canPin && (canEdit || canDelete) && <div className="w-px h-4 bg-zinc-800 mx-0.5"></div>}
               {canEdit && (
-                <button onClick={() => onEdit(msg)} className="hover:text-teal-400 text-zinc-400 transition-colors cursor-pointer p-1.5 rounded hover:bg-zinc-800" title="Edit">
-                  <Edit2 className="w-3.5 h-3.5" />
+                <button
+                  type="button"
+                  onClick={() => onEdit(msg)}
+                  style={{ fontSize: '0.7rem', cursor: 'pointer', padding: '0.1rem 0.3rem' }}
+                >
+                  Edit
                 </button>
               )}
-              {canEdit && canDelete && <div className="w-px h-4 bg-zinc-800 mx-0.5"></div>}
               {canDelete && (
-                <button onClick={() => onDelete(msg.id)} className="hover:text-red-400 text-zinc-400 transition-colors cursor-pointer p-1.5 rounded hover:bg-zinc-800" title="Delete">
-                  <Trash2 className="w-3.5 h-3.5" />
+                <button
+                  type="button"
+                  onClick={() => onDelete(msg.id)}
+                  style={{ fontSize: '0.7rem', cursor: 'pointer', padding: '0.1rem 0.3rem', color: 'red' }}
+                >
+                  Delete
                 </button>
               )}
-            </div>
-          )}
-
-          {isOwn && !msg.isDeleted && (
-            <span className={`flex items-center ${receiptStatus === 'Seen' ? 'text-teal-500' : 'text-zinc-600'}`}>
-              {receiptStatus === 'Sent' && <Check className="w-3.5 h-3.5" />}
-              {receiptStatus === 'Delivered' && <CheckCheck className="w-3.5 h-3.5" />}
-              {receiptStatus === 'Seen' && <CheckCheck className="w-3.5 h-3.5 text-teal-500" />}
             </span>
           )}
         </div>

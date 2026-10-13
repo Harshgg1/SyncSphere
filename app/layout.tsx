@@ -1,23 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "SyncSphere | Real-Time Chat",
-  description: "A highly scalable, real-time chat application.",
+  description: "A real-time chat application.",
 };
-
-import { Toaster } from "sonner";
 
 export default function RootLayout({
   children,
@@ -26,10 +14,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Toaster theme="dark" richColors />
+      <body>
+        <Toaster richColors />
         {children}
       </body>
     </html>

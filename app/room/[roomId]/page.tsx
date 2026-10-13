@@ -23,8 +23,8 @@ export default function RoomPage() {
   const params = useParams();
   const roomId = params.roomId as string;
 
-  // Mobile sidebar toggle
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  // Sidebar toggle
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   // --- Hooks ---
   const { token, currentUser } = useAuth();
@@ -35,9 +35,9 @@ export default function RoomPage() {
   const { wsRef, wsStatus, sendWsMessage } = useWebSocket(token, roomId, onMessageRef);
   const { roomName, members, adminId, handlePresence, handleLeave } = useRoomData(token, roomId);
   const {
-    pinnedMessages, isPinnedOpen, setIsPinnedOpen, handlePinEvent
+    pinnedMessages, isPinnedOpen, setIsPinnedOpen, handlePinEvent,
   } = usePinnedMessages(token, roomId);
-  
+
   const {
     messages, hasMore, loadingMore,
     inputValue, setInputValue, editingMessageId,
@@ -49,7 +49,7 @@ export default function RoomPage() {
     getReceiptStatus,
     messagesEndRef, messagesContainerRef,
   } = useMessages(token, roomId, currentUser, sendWsMessage, wsRef);
-  
+
   const { typingUsers, emitTyping, stopTyping, handleTypingEvent } = useTyping(roomId, sendWsMessage, wsRef, currentUser);
 
   // Wire WS message dispatcher — always uses latest handler references
@@ -60,12 +60,12 @@ export default function RoomPage() {
         case 'typing':          handleTypingEvent(data);  break;
         case 'message_edited':  handleEditMessage(data);  break;
         case 'message_deleted': handleDeleteMessage(data); break;
-        case 'message_pinned':  
-          handlePinMessageEvent(data); 
+        case 'message_pinned':
+          handlePinMessageEvent(data);
           handlePinEvent(data);
           break;
-        case 'message_unpinned': 
-          handleUnpinMessageEvent(data); 
+        case 'message_unpinned':
+          handleUnpinMessageEvent(data);
           handlePinEvent(data);
           break;
         case 'presence':        handlePresence(data);     break;
@@ -77,7 +77,6 @@ export default function RoomPage() {
   });
 
   // --- Orchestrated handlers ---
-  
   function onSend(e: React.FormEvent) {
     handleSend(e);
     stopTyping();
@@ -93,15 +92,14 @@ export default function RoomPage() {
   // --- Loading state ---
   if (!token || !currentUser) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-zinc-950">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
+      <div style={{ padding: '2rem', textAlign: 'center' }}>
+        <p>Loading session...</p>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-zinc-950 font-sans overflow-hidden">
-
+    <div style={{ display: 'flex', height: '100vh', width: '100%', overflow: 'hidden' }}>
       {/* Sidebar - Members */}
       <Sidebar
         members={members}
@@ -110,13 +108,12 @@ export default function RoomPage() {
       />
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col min-w-0 h-full bg-zinc-950 relative">
-
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, height: '100%', position: 'relative' }}>
         <ChatHeader
           roomName={roomName}
           roomId={roomId}
           wsStatus={wsStatus}
-          onToggleSidebar={() => setIsSidebarOpen(true)}
+          onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
           onLeave={handleLeave}
           searchInput={searchInput}
           isSearching={isSearching}
@@ -160,7 +157,6 @@ export default function RoomPage() {
           onSend={onSend}
           onCancelEdit={cancelEdit}
         />
-
       </div>
     </div>
   );
