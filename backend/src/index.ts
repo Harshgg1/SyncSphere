@@ -4,23 +4,19 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import http from 'http';
-import authRoutes from './routes/auth.js';
-import roomRoutes from './routes/rooms.js';
-import messageRoutes from './routes/messages.js';
+import apiRoutes from './routes/index.js';
 import { setupWebSocket } from './ws/handler.js';
+import { env } from './env.js';
 
 const app = express();
-import { env } from './env.js';
 const PORT = env.PORT;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/rooms', roomRoutes);
-app.use('/api/messages', messageRoutes);
+// API Routes
+app.use('/api', apiRoutes);
 
 // Health check
 app.get('/health', (_req, res) => {

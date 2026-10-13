@@ -1,27 +1,28 @@
 {
-  "name": "messenger",
-  "version": "0.1.0",
+  "name": "realtime-chat-redis",
+  "version": "1.0.0",
   "private": true,
+  "description": "Scalable Real-Time Chat Engine with Next.js, Express, Redis Pub/Sub, PostgreSQL & Prisma",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build:backend": "npm --prefix backend run build",
+    "build:frontend": "npm --prefix frontend run build",
+    "build": "npm run build:backend && npm run build:frontend",
+    "db:migrate": "npm --prefix backend run db:migrate",
+    "db:generate": "npm --prefix backend run db:generate",
+    "db:push": "npm --prefix backend run db:push",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down"
   },
-  "dependencies": {
-    "react": "19.2.3",
-    "lucide-react": "^1.24.0",
-    "next": "16.1.6",
-    "react-dom": "19.2.3",
-    "sonner": "^2.0.7",
-    "zod": "^4.4.3"
-  },
-  "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.1.6",
-    "typescript": "^5"
-  }
+  "keywords": [
+    "chat",
+    "realtime",
+    "redis",
+    "websockets",
+    "nextjs",
+    "express",
+    "prisma",
+    "postgresql"
+  ]
 }

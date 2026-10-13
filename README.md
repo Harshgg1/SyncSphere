@@ -102,29 +102,48 @@ A clean, monorepo-style structure separating the frontend application from the s
 
 ```text
 SyncSphere/
-├── app/                             # Next.js Frontend (App Router)
-│   ├── api/                         # Next.js API Routes (Proxy to Backend)
-│   ├── room/[roomId]/               # Dynamic Chat Room UI & Hooks
-│   │   ├── components/              # ChatHeader, MessageList, etc.
-│   │   └── hooks/                   # useMessages, useWebSocket, useTyping
-│   ├── page.tsx                     # Dashboard & Authentication
-│   ├── layout.tsx                   # Root Layout & Sonner Toaster
-│   ├── error.tsx                    # Global Error Boundary
-│   └── globals.css                  # Tailwind styles
+├── frontend/                        # Next.js Frontend Application
+│   ├── app/                         # App Router (pages, layouts, dynamic room)
+│   │   ├── room/[roomId]/           # Chat Room UI, components, hooks
+│   │   ├── page.tsx                 # Dashboard & Authentication
+│   │   ├── layout.tsx               # Root Layout & Toaster
+│   │   └── globals.css              # Styling
+│   ├── lib/                         # Frontend Utilities
+│   ├── types/                       # Shared UI TypeScript Definitions
+│   ├── public/                      # Static Assets & Logos
+│   ├── Dockerfile                   # Frontend Container Config
+│   ├── package.json                 # Frontend Dependencies
+│   └── tsconfig.json                # Frontend TypeScript Configuration
 ├── backend/                         # Node.js WebSocket & REST Server
 │   ├── src/
+│   │   ├── routes/                  # Express REST Route Definitions
+│   │   │   ├── auth.routes.ts
+│   │   │   ├── room.routes.ts
+│   │   │   ├── message.routes.ts
+│   │   │   └── index.ts
+│   │   ├── controllers/             # Request & Response Handlers
+│   │   │   ├── auth.controller.ts
+│   │   │   ├── room.controller.ts
+│   │   │   └── message.controller.ts
+│   │   ├── services/                # Business Logic & DB Interactions
+│   │   │   ├── auth.service.ts
+│   │   │   ├── room.service.ts
+│   │   │   ├── message.service.ts
+│   │   │   └── RedisSubscriptionManager.ts
+│   │   ├── middlewares/             # Custom Express Middlewares (Auth)
+│   │   ├── utils/                   # Security & Helper Utilities
+│   │   ├── ws/                      # WebSocket Connection & Message Handlers
+│   │   ├── config/                  # Prisma Database Client
 │   │   ├── env.ts                   # Environment Variables Validation (Zod)
-│   │   ├── index.ts                 # Express & WS Server Entry
-│   │   ├── services/                # Redis Pub/Sub Singleton
-│   │   ├── ws/                      # WebSocket Handlers
-│   │   └── routes/                  # Express REST Routes
+│   │   └── index.ts                 # Server Bootstrap Entry Point
 │   ├── prisma/
 │   │   └── schema.prisma            # DB Models (User, Room, Message)
-│   └── Dockerfile                   # Backend Container Config
-├── public/
-│   └── syncsphere-logo.svg          # Cache-busted Geometric Logo
-├── docker-compose.yml               # Multi-container orchestration
-└── next.config.ts                   # Next.js Proxy Configuration
+│   ├── Dockerfile                   # Backend Container Config
+│   └── package.json                 # Backend Dependencies
+├── docker-compose.yml               # Multi-container orchestration (DB, Redis, Backend, Frontend)
+├── package.json                     # Root orchestrator scripts (dev, build, db)
+├── .env.example                     # Environment variables blueprint
+└── README.md
 ```
 
 ---
@@ -298,18 +317,27 @@ Ensure you have **Node.js (v20+)**, **PostgreSQL**, and **Redis** running locall
 
 **2. Backend Setup**
 ```bash
+# Navigate to backend or run via root scripts
 cd backend
 npm install
 npm run db:migrate   # Setup PostgreSQL tables
 npm run db:generate  # Generate Prisma Client
-npm run dev          # Starts on port 8080
+npm run dev          # Starts backend on port 8080
 ```
 
 **3. Frontend Setup** (In a new terminal)
 ```bash
-# From the project root
+# Navigate to frontend
+cd frontend
 npm install
-npm run dev          # Starts on port 3000
+npm run dev          # Starts frontend on port 3000
+```
+
+**Or using root convenience scripts:**
+```bash
+npm run dev:backend   # Starts backend
+npm run dev:frontend  # Starts frontend
+npm run build         # Builds both backend & frontend
 ```
 
 ---
