@@ -7,11 +7,11 @@ import { toast } from 'sonner';
 
 export default function HomePage() {
   const router = useRouter();
-  const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   const [rooms, setRooms] = useState<Room[]>([]);
   const [newRoomName, setNewRoomName] = useState('');
@@ -19,25 +19,34 @@ export default function HomePage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Check if user is already authenticated via cookie
   useEffect(() => {
-    const savedToken = localStorage.getItem('token');
-    const savedUser = localStorage.getItem('user');
-    if (savedToken && savedUser) {
-      setToken(savedToken);
-      setUser(JSON.parse(savedUser));
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/auth/me', { credentials: 'include' });
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data.user);
+        }
+      } catch {
+        // Not authenticated
+      } finally {
+        setIsLoading(false);
+      }
     }
+    checkAuth();
   }, []);
 
   useEffect(() => {
-    if (token) {
+    if (user) {
       fetchRooms();
     }
-  }, [token]);
+  }, [user]);
 
   async function fetchRooms() {
     try {
       const res = await fetch('/api/rooms', {
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: 'include',
       });
       if (res.ok) {
         const data = await res.json();
@@ -63,6 +72,7 @@ export default function HomePage() {
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ username, password }),
       });
       const data = await res.json();
@@ -71,9 +81,6 @@ export default function HomePage() {
         setIsSubmitting(false);
         return;
       }
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      setToken(data.token);
       setUser(data.user);
       setUsername('');
       setPassword('');
@@ -85,10 +92,15 @@ export default function HomePage() {
     }
   }
 
-  function handleLogout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setToken(null);
+  async function handleLogout() {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch {
+      // Clear state anyway
+    }
     setUser(null);
     setRooms([]);
     toast.info('Logged out securely');
@@ -100,10 +112,8 @@ export default function HomePage() {
     try {
       const res = await fetch('/api/rooms', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ name: newRoomName.trim() }),
       });
       const data = await res.json();
@@ -125,7 +135,7 @@ export default function HomePage() {
     try {
       const res = await fetch(`/api/rooms/${joinRoomId.trim()}/join`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: 'include',
       });
       const data = await res.json();
       if (!res.ok) {
@@ -140,7 +150,15 @@ export default function HomePage() {
     }
   }
 
-  if (!token) {
+  if (isLoading) {
+    return (
+      <div style={{ maxWidth: '400px', margin: '4rem auto', padding: '1rem', textAlign: 'center' }}>
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
     return (
       <div style={{ maxWidth: '400px', margin: '4rem auto', padding: '1rem' }}>
         <h1>SyncSphere</h1>

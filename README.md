@@ -23,7 +23,7 @@
 |---|---|
 | **Real-Time Engine** | Native WebSocket connections managed by a custom Node.js server. |
 | **Scalable Architecture** | Redis Pub/Sub integration allows horizontal scaling of WebSocket servers without sticky sessions. |
-| **Authentication** | JWT-based authentication for secure messaging and user sessions. |
+| **Authentication** | JWT-based authentication with secure HttpOnly cookie storage for user sessions. |
 | **Persistent Storage** | PostgreSQL database with Prisma ORM for robust data integrity and message history. |
 | **Dynamic UI** | Built with Next.js App Router, React 19, and TailwindCSS for a highly responsive, modern glassmorphic interface. |
 | **Rooms & Presence** | Join via Room ID, view online members, real-time typing indicators, and instant read receipts. |
@@ -150,7 +150,7 @@ SyncSphere/
 
 ## 3. Authentication Flow
 
-How users securely authenticate and establish both HTTP sessions and WebSocket connections.
+How users securely authenticate and establish both HTTP sessions and WebSocket connections. JWT tokens are stored in **HttpOnly cookies** for enhanced security — they are never exposed to client-side JavaScript.
 
 ```mermaid
 sequenceDiagram
@@ -163,14 +163,17 @@ sequenceDiagram
     N->>A: POST /api/auth/login
     A->>DB: Query User & Verify Password
     DB-->>A: User Verified
-    A-->>N: Returns JWT Token
-    N->>U: Stores Token in localStorage
+    A-->>N: Set-Cookie: token=JWT (HttpOnly) + JSON { user }
+    N->>U: Session Established via Cookie
     
     Note over U,DB: WebSocket Connection Establishment
+    N->>A: GET /api/auth/token (Cookie sent automatically)
+    A-->>N: Returns JWT for WebSocket handshake
     U->>A: Connects to wss://.../?token=JWT
     A->>A: Verifies JWT Token
     A-->>U: WebSocket Connection Established
 ```
+
 
 ---
 

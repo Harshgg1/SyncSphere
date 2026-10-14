@@ -3,6 +3,7 @@ dotenv.config();
 
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import http from 'http';
 import apiRoutes from './routes/index.js';
 import { setupWebSocket } from './ws/handler.js';
@@ -12,7 +13,11 @@ const app = express();
 const PORT = env.PORT;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true,
+}));
+app.use(cookieParser());
 app.use(express.json());
 
 // API Routes

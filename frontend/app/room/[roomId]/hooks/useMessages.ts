@@ -43,7 +43,7 @@ export function useMessages(
   useEffect(() => {
     if (!token) return;
     fetch(`/api/messages/${roomId}?limit=50`, {
-      headers: { Authorization: `Bearer ${token}` },
+      credentials: 'include',
     })
       .then((res) => res.json())
       .then((data) => {
@@ -175,7 +175,7 @@ export function useMessages(
     const oldestId = messages[0].id;
     try {
       const res = await fetch(`/api/messages/${roomId}?cursor=${oldestId}&limit=50`, {
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: 'include',
       });
       const data = await res.json();
       const rawOlder = Array.isArray(data) ? data : data.messages || [];
@@ -199,7 +199,7 @@ export function useMessages(
     setSearchQuery(searchInput.trim());
     try {
       const res = await fetch(`/api/messages/${roomId}?search=${encodeURIComponent(searchInput.trim())}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: 'include',
       });
       const data = await res.json();
       const rawResults = Array.isArray(data) ? data : data.messages || [];
@@ -216,7 +216,7 @@ export function useMessages(
     // Reload messages
     if (!token) return;
     fetch(`/api/messages/${roomId}?limit=50`, {
-      headers: { Authorization: `Bearer ${token}` },
+      credentials: 'include',
     })
       .then((res) => res.json())
       .then((data) => {

@@ -10,13 +10,22 @@ declare global {
 }
 
 export function authMiddleware(req: Request, res: Response, next: NextFunction): void {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  // 1. Try httpOnly cookie first
+  let token = req.cookies?.token;
+
+  // 2. Fallback to Authorization header (for backward compatibility / API clients)
+  if (!token) {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.split(' ')[1];
+    }
+  }
+
+  if (!token) {
     res.status(401).json({ error: 'No token provided' });
     return;
   }
 
-  const token = authHeader.split(' ')[1];
   const decoded = verifyToken(token);
   if (!decoded) {
     res.status(401).json({ error: 'Invalid token' });

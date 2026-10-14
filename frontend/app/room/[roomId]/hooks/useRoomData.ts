@@ -14,7 +14,7 @@ export function useRoomData(token: string | null, roomId: string) {
   useEffect(() => {
     if (!token) return;
     fetch(`/api/rooms/${roomId}`, {
-      headers: { Authorization: `Bearer ${token}` }, 
+      credentials: 'include',
     })
       .then((res) => res.json())
       .then((data) => {
@@ -29,7 +29,7 @@ export function useRoomData(token: string | null, roomId: string) {
   useEffect(() => {
     if (!token) return;
     fetch(`/api/rooms/${roomId}/members`, {
-      headers: { Authorization: `Bearer ${token}` },
+      credentials: 'include',
     })
       .then((res) => res.json())
       .then((data) => {
@@ -68,7 +68,7 @@ export function useRoomData(token: string | null, roomId: string) {
     try {
       await fetch(`/api/rooms/${roomId}/leave`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: 'include',
       });
     } catch {}
     router.push('/');

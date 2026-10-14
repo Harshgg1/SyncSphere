@@ -9,14 +9,28 @@ export function useAuth() {
   const [currentUser, setCurrentUser] = useState<{ id: string; username: string } | null>(null);
 
   useEffect(() => {
-    const savedToken = localStorage.getItem('token');
-    const savedUser = localStorage.getItem('user');
-    if (!savedToken || !savedUser) {
-      router.push('/');
-      return;
+    async function checkAuth() {
+      try {
+        // First, verify the session and get user info
+        const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+        if (!meRes.ok) {
+          router.push('/');
+          return;
+        }
+        const meData = await meRes.json();
+        setCurrentUser(meData.user);
+
+        // Then, fetch the raw token for WebSocket connections
+        const tokenRes = await fetch('/api/auth/token', { credentials: 'include' });
+        if (tokenRes.ok) {
+          const tokenData = await tokenRes.json();
+          setToken(tokenData.token);
+        }
+      } catch {
+        router.push('/');
+      }
     }
-    setToken(savedToken);
-    setCurrentUser(JSON.parse(savedUser));
+    checkAuth();
   }, [router]);
 
   // Request notification permission

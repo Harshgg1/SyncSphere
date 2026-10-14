@@ -12,7 +12,7 @@ export function usePinnedMessages(token: string | null, roomId: string) {
   useEffect(() => {
     if (!token) return;
     fetch(`/api/messages/${roomId}/pinned`, {
-      headers: { Authorization: `Bearer ${token}` },
+      credentials: 'include',
     })
       .then((res) => res.json())
       .then((data) => {
@@ -28,7 +28,7 @@ export function usePinnedMessages(token: string | null, roomId: string) {
     // If we receive a pin event, we reload the pinned list from the server to get the full message object.
     if (!token) return;
     fetch(`/api/messages/${roomId}/pinned`, {
-      headers: { Authorization: `Bearer ${token}` },
+      credentials: 'include',
     })
       .then((res) => res.json())
       .then((data) => {
